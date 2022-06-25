@@ -1,17 +1,6 @@
 import { useEffect, useState } from 'react';
 import { addMinutes } from 'date-fns';
 
-const init = {
-    id: '',
-    title: '',
-    timezone: {
-        type: '',
-        offset: '',
-    },
-    date_utc: null,
-    date: null,
-};
-
 const TIMEZONE_OFFFSET = {
     PST: -7 * 60,
     EST: -4 * 60,
@@ -20,36 +9,41 @@ const TIMEZONE_OFFFSET = {
 };
 
 const useClock = (timezone, offset = 0) => {
-    const [state, setState] = useState({ ...init });
+    const [localDate, setLocalDate] = useState(null);
+    const [localOffset, setLocalOffset] = useState(0);
+    const [localTimezone, setLocalTimezone] = useState('');
     const [utc, setUtc] = useState(null);
 
     useEffect(() => {
         let d = new Date();
-        const localOffset = d.getTimezoneOffset();
-        d = addMinutes(d, localOffset);
+        const lo = d.getTimezoneOffset();
+        d = addMinutes(d, lo);
         setUtc(d);
+        setLocalOffset(lo);
     }, []);
 
     useEffect(() => {
-        if (utc !== null && timezone) {
-            offset = TIMEZONE_OFFFSET[timezone] ?? offset;
-            const newUtc = addMinutes(utc, offset);
-            setState({
-                ...state,
-                date_utc: utc,
-                date: newUtc
-            });
-        } else {
-            setState({
-                ...state,
-                date_utc: utc,
-                date: utc,
-            });
+        if (utc !== null) {
+            if (timezone) {
+                offset = TIMEZONE_OFFFSET[timezone] ?? offset;
+                const newUtc = addMinutes(utc, offset);
+                setLocalDate(newUtc);
+            } else {
+                const newUtc = addMinutes(utc, -localOffset);
+                const dateStrArr = newUtc.toUTCString().split(' ');
+                setLocalTimezone(dateStrArr.pop());
+                setLocalDate(newUtc);
+            }
         }
     }, [utc]);
 
     return {
-        clock: state,
+        date: localDate,
+        dateUtc: utc,
+        offset,
+        timezone,
+        localTimezone,
+        localOffset
     };
 };
 
