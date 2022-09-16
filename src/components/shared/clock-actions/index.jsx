@@ -7,10 +7,10 @@ const defaultOffsets = [
 const ClockActions = ({ local = false, clock, updateClock }) => {
   const [isEdit, setIsEdit] = useState(false);
 
-  const handlechange = (e) => {
+  const handleChange = (e) => {
     let { name, value } = e.target;
     if (name === 'offset') {
-      value = parseInt(value) * 60;
+      value = Number(value) * 60;
     }
     updateClock({
       [name]: value,
@@ -28,12 +28,12 @@ const ClockActions = ({ local = false, clock, updateClock }) => {
             type="text"
             name="title"
             value={clock.title}
-            onChange={handlechange}
+            onChange={handleChange}
           />
           <select
             name="timezone"
             value={clock.timezone}
-            onChange={handlechange}
+            onChange={handleChange}
           >
             <option value="UTC">UTC</option>
             <option value="GMT">GMT</option>
@@ -45,12 +45,11 @@ const ClockActions = ({ local = false, clock, updateClock }) => {
             <select
               name="offset"
               value={clock.offset / 60}
-              onChange={handlechange}
+              onChange={handleChange}
             >
               {defaultOffsets.map((offset) => (
                 <option key={offset} value={offset}>
-                  {' '}
-                  {offset}{' '}
+                  {offset}
                 </option>
               ))}
             </select>
