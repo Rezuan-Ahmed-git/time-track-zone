@@ -4,18 +4,32 @@
  * 3. for edit we will have title, timezone, offset
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { TIMEZONE_OFFSET } from '../../../constants/timezone';
+import { getOffset } from '../../../utils/timezone';
 
-/* const values = {
-    title: '',
-    timezone: '',
-    offset: 0
-} */
-const ClockForm = ({ values, handleClock, title = false, edit = false }) => {
+const ClockForm = ({
+  values = { title: '', timezone: 'UTC', offset: 0 },
+  handleClock,
+  title = true,
+  edit = false,
+}) => {
   const [formValues, setFormValues] = useState({ ...values });
 
+  useEffect(() => {
+    if (TIMEZONE_OFFSET[formValues.timezone]) {
+      setFormValues((prev) => ({
+        ...prev,
+        offset: TIMEZONE_OFFSET[formValues.timezone],
+      }));
+    }
+  }, [formValues.timezone]);
+
   const handleChange = (e) => {
-    const [name, value] = e.target;
+    let { name, value } = e.target;
+    if (name === 'offset') {
+      value = Number(value) * 60;
+    }
 
     setFormValues({
       ...formValues,
@@ -35,7 +49,7 @@ const ClockForm = ({ values, handleClock, title = false, edit = false }) => {
         <input
           type="text"
           id="title"
-          value={formState.title}
+          value={formValues.title}
           name="title"
           onChange={handleChange}
           disabled={!title}
@@ -43,24 +57,36 @@ const ClockForm = ({ values, handleClock, title = false, edit = false }) => {
       </div>
       <div>
         <label htmlFor="timezone">Enter Timezone</label>
-        <input
-          type="text"
+        <select
           id="timezone"
-          value={formState.timezone}
           name="timezone"
+          value={formValues.timezone}
           onChange={handleChange}
-        />
+        >
+          <option value="UTC">UTC</option>
+          <option value="GMT">GMT</option>
+          <option value="PST">PST</option>
+          <option value="EST">EST</option>
+          <option value="BST">BST</option>
+        </select>
       </div>
-      <div>
-        <label htmlFor="offset">Enter Offset</label>
-        <input
-          type="number"
-          id="offset"
-          value={formState.offset}
-          name="offset"
-          onChange={handleChange}
-        />
-      </div>
+      {(formValues.timezone === 'GMT' || formValues.timezone === 'UTC') && (
+        <div>
+          <label htmlFor="offset">Enter Offset</label>
+          <select
+            id="offset"
+            name="offset"
+            value={formValues.offset / 60}
+            onChange={handleChange}
+          >
+            {getOffset().map((offset) => (
+              <option key={offset} value={offset}>
+                {offset}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <button> {edit ? 'Update' : 'Create'} </button>
     </form>
   );
