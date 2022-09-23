@@ -14,6 +14,7 @@ function App() {
   const [localClock, setLocalClock] = useState({ ...LOCAL_CLOCK_INIT });
   const [clocks, setClocks] = useState([]);
 
+  //state lifting to update the local clock
   const updateLocalClock = (data) => {
     setLocalClock({
       ...localClock,
@@ -21,12 +22,13 @@ function App() {
     });
   };
 
-  //state lifting for create clock
+  //state lifting to create single clock
   const createClock = (clock) => {
     clock.id = generate();
     setClocks([...clocks, clock]);
   };
 
+  //state lifting to update the single clock
   const updateClock = (updatedClock) => {
     const updatedClocks = clocks.map((clock) => {
       if (clock.id === updatedClock.id) return updatedClock;
@@ -35,6 +37,7 @@ function App() {
     setClocks(updatedClocks);
   };
 
+  //to delete a single clock
   const deleteClock = (id) => {
     const updatedClocks = clocks.filter((clock) => clock.id !== id);
     setClocks(updatedClocks);
